@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class CustomerController extends Controller
+{
+    public function index($uuid)
+    {
+        $table = \App\Models\Table::where('uuid', $uuid)->firstOrFail();
+        $menus = \App\Models\Menu::where('is_available', true)->get();
+        
+        // Check if cart exists in session
+        $cart = session()->get('cart', []);
+        
+        // Get active order for this table (only if table is occupied)
+        $activeOrder = null;
+        if ($table->status == 'occupied') {
+            $activeOrder = \App\Models\Order::where('table_id', $table->id)
+                ->latest()
+                ->first();
+        }
+        
+        return view('customer.menu', compact('table', 'menus', 'cart', 'activeOrder'));
+    }
+
+    public function addToCart(Request $request, $uuid)
+    {
+        $request->validate([
+            'menu_id' => 'required|exists:menus,id',
+            'quantity' => 'required|integer|min:1|max:100',
+        ]);
+
+        $menu = \App\Models\Menu::findOrFail($request->menu_id);
+        $cart = session()->get('cart', []);
+        
+        if(isset($cart[$request->menu_id])) {
+            $cart[$request->menu_id]['quantity'] += $request->quantity;
+        } else {
+            $cart[$request->menu_id] = [
+                "name" => $menu->name,
+                "quantity" => $request->quantity,
+                "price" => $menu->price,
+                "image" => $menu->image
+            ];
+        }
+        
+        session()->put('cart', $cart);
+        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+    }
+
+    public function checkout($uuid)
+    {
+        $table = \App\Models\Table::where('uuid', $uuid)->firstOrFail();
+        $cart = session()->get('cart', []);
+        $paymentMethods = \App\Models\PaymentMethod::where('is_active', true)->get();
+        
+        return view('customer.checkout', compact('table', 'cart', 'paymentMethods'));
+    }
+
+    public function placeOrder(Request $request, $uuid)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'payment_method' => 'required|in:Cash,Transfer',
+        ]);
+
+        $table = \App\Models\Table::where('uuid', $uuid)->firstOrFail();
+        $cart = session()->get('cart', []);
+        
+        if(empty($cart)) {
+            return redirect()->back()->with('error', 'Keranjang kosong');
+        }
+
+        // Calculate new items total
+        $newItemsTotal = 0;
+        foreach($cart as $id => $details) {
+            $newItemsTotal += $details['price'] * $details['quantity'];
+        }
+
+        // Check if there's an existing active order for this table (only if table is occupied)
+        $existingOrder = null;
+        if ($table->status == 'occupied') {
+            $existingOrder = \App\Models\Order::where('table_id', $table->id)
+                ->latest()
+                ->first();
+        }
+
+        if ($existingOrder) {
+            // Add new items to existing order
+            foreach($cart as $id => $details) {
+                // Check if this menu item already exists in the order
+                $existingItem = \App\Models\OrderItem::where('order_id', $existingOrder->id)
+                    ->where('menu_id', $id)
+                    ->first();
+                
+                if ($existingItem) {
+                    // Update quantity if item already exists
+                    $existingItem->quantity += $details['quantity'];
+                    $existingItem->save();
+                } else {
+                    // Create new order item
+                    \App\Models\OrderItem::create([
+                        'order_id' => $existingOrder->id,
+                        'menu_id' => $id,
+                        'quantity' => $details['quantity'],
+                        'price' => $details['price']
+                    ]);
+                }
+            }
+
+            // Update total amount
+            $existingOrder->total_amount += $newItemsTotal;
+            
+            // Reset payment status to pending if it was already paid
+            // Customer needs to pay for the additional items
+            if ($existingOrder->payment_status == 'paid') {
+                $existingOrder->payment_status = 'pending';
+            }
+            
+            $existingOrder->save();
+
+            session()->forget('cart');
+
+            return redirect()->route('order.status', ['uuid' => $uuid, 'order' => $existingOrder->id])
+                ->with('success', 'Item berhasil ditambahkan ke pesanan yang sudah ada!');
+        } else {
+            // Create new order if no active order exists
+            $order = \App\Models\Order::create([
+                'table_id' => $table->id,
+                'total_amount' => $newItemsTotal,
+                'payment_method' => $request->payment_method,
+                'customer_name' => $request->customer_name,
+                'order_status' => 'pending',
+                'payment_status' => 'pending'
+            ]);
+
+            foreach($cart as $id => $details) {
+                \App\Models\OrderItem::create([
+                    'order_id' => $order->id,
+                    'menu_id' => $id,
+                    'quantity' => $details['quantity'],
+                    'price' => $details['price']
+                ]);
+            }
+
+            // Set table status to occupied
+            $table->status = 'occupied';
+            $table->save();
+
+            session()->forget('cart');
+
+            return redirect()->route('order.status', ['uuid' => $uuid, 'order' => $order->id]);
+        }
+    }
+
+    public function status($uuid, \App\Models\Order $order)
+    {
+        return view('customer.status', compact('order'));
+    }
+
+    public function paymentInfo($uuid)
+    {
+        $table = \App\Models\Table::where('uuid', $uuid)->firstOrFail();
+        $paymentMethods = \App\Models\PaymentMethod::where('is_active', true)->get();
+        
+        return view('customer.payment_info', compact('table', 'paymentMethods'));
+    }
+}
