@@ -26,12 +26,37 @@ class OrderController extends Controller
 
         $order->update(['order_status' => $request->order_status]);
 
-        return redirect()->back()->with('success', 'Order status updated.');
+        // Auto-cancel payment and clear table when order is cancelled
+        if ($request->order_status === 'cancelled') {
+            $order->update(['payment_status' => 'cancelled']);
+            
+            // Clear the table
+            $order->table->update([
+                'is_occupied' => false,
+                'current_order_id' => null
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Status pesanan berhasil diupdate.');
     }
 
     public function verifyPayment(\App\Models\Order $order)
     {
         $order->update(['payment_status' => 'paid']);
-        return redirect()->back()->with('success', 'Payment verified.');
+        return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi.');
+    }
+
+    public function destroy(\App\Models\Order $order)
+    {
+        // Clear the table
+        $order->table->update([
+            'is_occupied' => false,
+            'current_order_id' => null
+        ]);
+
+        // Delete order (will cascade delete order items)
+        $order->delete();
+
+        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dihapus.');
     }
 }

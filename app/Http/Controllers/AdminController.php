@@ -13,7 +13,18 @@ class AdminController extends Controller
         $month = \App\Models\Order::whereMonth('created_at', now()->month)->where('payment_status', 'paid')->sum('total_amount');
         $year = \App\Models\Order::whereYear('created_at', now()->year)->where('payment_status', 'paid')->sum('total_amount');
 
-        return view('admin.dashboard', compact('today', 'week', 'month', 'year'));
+        // Order statistics
+        $totalOrders = \App\Models\Order::count();
+        $completedOrders = \App\Models\Order::where('order_status', 'completed')->count();
+        $pendingOrders = \App\Models\Order::where('order_status', 'pending')->count();
+
+        // Recent orders (last 10)
+        $recentOrders = \App\Models\Order::with('table')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.dashboard', compact('today', 'week', 'month', 'year', 'totalOrders', 'completedOrders', 'pendingOrders', 'recentOrders'));
     }
 
     public function reports()

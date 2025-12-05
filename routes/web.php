@@ -3,8 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Redirect root to login
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
@@ -31,6 +32,7 @@ Route::middleware('auth')->group(function () {
         Route::get('orders/{order}', [App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
         Route::put('orders/{order}/status', [App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::put('orders/{order}/payment', [App\Http\Controllers\OrderController::class, 'verifyPayment'])->name('orders.verifyPayment');
+        Route::delete('orders/{order}', [App\Http\Controllers\OrderController::class, 'destroy'])->name('orders.destroy');
     });
 });
 
