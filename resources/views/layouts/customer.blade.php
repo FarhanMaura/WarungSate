@@ -13,14 +13,77 @@
     
     <style>
         :root {
-            --primary-color: #FF6B6B;
-            --secondary-color: #4ECDC4;
+            --primary-color: #FF8C42;
+            --secondary-color: #8B4513;
+            --sate-brown: #8B4513;
+            --sate-orange: #FF8C42;
+            --sate-dark: #3E2723;
+            --sate-light: #FFECB3;
         }
         
         body {
             font-family: 'Outfit', sans-serif;
             padding-bottom: 80px;
             transition: background-color 0.3s, color 0.3s;
+            position: relative;
+        }
+
+        /* Decorative background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(45deg, var(--sate-brown) 0px, var(--sate-brown) 2px, transparent 2px, transparent 10px),
+                repeating-linear-gradient(-45deg, var(--sate-orange) 0px, var(--sate-orange) 2px, transparent 2px, transparent 10px);
+        }
+
+        /* Floating sate sticks decoration */
+        .sate-decoration {
+            position: fixed;
+            font-size: 3rem;
+            opacity: 0.05;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatSate 20s ease-in-out infinite;
+        }
+
+        @keyframes floatSate {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-30px) rotate(10deg);
+            }
+        }
+
+        .sate-decoration:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .sate-decoration:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 3s;
+        }
+
+        .sate-decoration:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 6s;
+        }
+
+        .sate-decoration:nth-child(4) {
+            top: 30%;
+            right: 25%;
+            animation-delay: 9s;
         }
 
         /* Light Mode (Default) */
@@ -82,7 +145,7 @@
 
         body.dark-mode .card {
             background-color: #2D2D2D;
-            border: none;
+            border: 1px solid #444;
             color: #F7F7F7;
         }
 
@@ -101,6 +164,17 @@
 
         body.dark-mode .table {
             color: #F7F7F7;
+            background-color: transparent;
+        }
+
+        body.dark-mode .table th,
+        body.dark-mode .table td {
+            color: #F7F7F7 !important;
+            border-color: #555 !important;
+        }
+
+        body.dark-mode .table-bordered {
+            border-color: #555 !important;
         }
 
         body.dark-mode .form-control,
@@ -121,15 +195,19 @@
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--sate-orange), var(--sate-brown));
             border: none;
             border-radius: 10px;
             padding: 10px 20px;
             font-weight: 600;
+            transition: all 0.3s ease;
+            color: white !important;
         }
 
         .btn-primary:hover {
-            background-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+            color: white !important;
         }
 
         .theme-toggle {
@@ -140,17 +218,71 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--sate-orange), var(--sate-brown));
             border: none;
             color: white;
             font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.4);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .theme-toggle:hover {
-            transform: scale(1.1);
+            transform: scale(1.15) rotate(15deg);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.6);
+        }
+
+        .theme-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:active {
+            transform: scale(1.05);
+        }
+
+        /* Cart button animation */
+        .cart-btn {
+            border-radius: 10px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+            background: white !important;
+            border: 2px solid var(--sate-orange) !important;
+            color: var(--sate-brown) !important;
+        }
+
+        .cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+            background: linear-gradient(135deg, var(--sate-orange), var(--sate-brown)) !important;
+            color: white !important;
+        }
+
+        .cart-btn .badge {
+            animation: pulse 2s ease-in-out infinite;
+            background: linear-gradient(135deg, var(--sate-orange), var(--sate-brown)) !important;
+        }
+
+        body.dark-mode .cart-btn {
+            background: #2D2D2D !important;
+            border: 2px solid var(--sate-orange) !important;
+            color: var(--sate-orange) !important;
+        }
+
+        body.dark-mode .cart-btn:hover {
+            background: linear-gradient(135deg, var(--sate-orange), var(--sate-brown)) !important;
+            color: white !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         .radius-alert {
@@ -188,9 +320,84 @@
             }
         }
     </style>
+    
+    <!-- Dark Mode Table Fix - Must be after Bootstrap -->
+    <style>
+        /* CRITICAL: Dark mode table styling */
+        body.dark-mode .card {
+            background-color: #2D2D2D !important;
+            border-color: #444 !important;
+        }
+
+        body.dark-mode .card-body {
+            background-color: #2D2D2D !important;
+        }
+
+        body.dark-mode .table {
+            color: #F7F7F7 !important;
+            background-color: #2D2D2D !important;
+            --bs-table-bg: #2D2D2D !important;
+            --bs-table-striped-bg: #2D2D2D !important;
+            --bs-table-active-bg: #2D2D2D !important;
+            --bs-table-hover-bg: #333 !important;
+        }
+
+        body.dark-mode .table th,
+        body.dark-mode .table td {
+            color: #F7F7F7 !important;
+            background-color: #2D2D2D !important;
+            border-color: #000 !important;
+        }
+
+        body.dark-mode .table thead th {
+            color: #F7F7F7 !important;
+            background-color: #2D2D2D !important;
+            border-color: #000 !important;
+        }
+
+        body.dark-mode .table tbody tr {
+            background-color: #2D2D2D !important;
+        }
+
+        body.dark-mode .table tbody td,
+        body.dark-mode .table tbody th {
+            color: #F7F7F7 !important;
+            background-color: #2D2D2D !important;
+            border-color: #000 !important;
+        }
+
+        body.dark-mode .table tfoot th,
+        body.dark-mode .table tfoot td {
+            color: #F7F7F7 !important;
+            background-color: #2D2D2D !important;
+            border-color: #000 !important;
+        }
+
+        body.dark-mode .table-bordered {
+            border-color: #000 !important;
+        }
+
+        body.dark-mode .table-bordered th,
+        body.dark-mode .table-bordered td {
+            border-color: #000 !important;
+        }
+
+        body.dark-mode .table-sm th,
+        body.dark-mode .table-sm td {
+            color: #F7F7F7 !important;
+            background-color: #2D2D2D !important;
+            border-color: #000 !important;
+        }
+    </style>
+    
     @stack('css')
 </head>
 <body class="light-mode">
+    <!-- Floating Sate Sticks Decoration -->
+    <i class="fas fa-fire sate-decoration"></i>
+    <i class="fas fa-fire sate-decoration"></i>
+    <i class="fas fa-fire sate-decoration"></i>
+    <i class="fas fa-fire sate-decoration"></i>
 
     <div id="radius-overlay" class="radius-alert">
         <i class="fas fa-map-marker-alt radius-icon"></i>
@@ -201,13 +408,14 @@
 
     <nav class="navbar navbar-expand-lg fixed-top no-print">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-fire text-danger"></i> Sate Enak
+            <a class="navbar-brand" href="#" style="font-weight: 700; font-size: 1.3rem;">
+                <i class="fas fa-fire" style="color: var(--sate-orange);"></i> 
+                <span style="background: linear-gradient(135deg, var(--sate-brown), var(--sate-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Sate Enak</span>
             </a>
             @if(session('cart'))
-            <a href="{{ route('order.checkout', request()->route('uuid')) }}" class="btn btn-sm btn-light position-relative">
+            <a href="{{ route('order.checkout', request()->route('uuid')) }}" class="btn btn-sm position-relative cart-btn">
                 <i class="fas fa-shopping-cart"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill">
                     {{ count(session('cart')) }}
                 </span>
             </a>

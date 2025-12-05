@@ -2,10 +2,131 @@
 
 @section('title', 'Checkout - Sate Ordering')
 
+@push('css')
+<style>
+    .checkout-card {
+        animation: fadeInUp 0.6s ease-out;
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .checkout-card .card-title {
+        font-weight: 700;
+        background: linear-gradient(135deg, #8B4513, #FF8C42);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .checkout-table tbody tr {
+        animation: slideInLeft 0.4s ease-out;
+        animation-fill-mode: both;
+    }
+
+    .checkout-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .checkout-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+    .checkout-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+    .checkout-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+    .checkout-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .total-amount {
+        font-size: 1.3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #FF8C42, #8B4513);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 1.5px solid #ddd;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #FF8C42;
+        box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #FF8C42, #8B4513);
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-submit:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+    }
+
+    .empty-cart-icon {
+        animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="card">
+<div class="card checkout-card">
     <div class="card-body">
-        <h4 class="card-title mb-4">Pesanan Anda</h4>
+        <h4 class="card-title mb-4">🛒 Pesanan Anda</h4>
         
         @if(session('cart'))
             @php 
@@ -16,14 +137,14 @@
             @endphp
 
             @if($activeOrder)
-            <div class="alert alert-info">
+            <div class="alert alert-info" style="border-radius: 10px; border-left: 4px solid #FF8C42;">
                 <i class="fas fa-info-circle"></i> <strong>Info:</strong> Anda sudah memiliki pesanan aktif. 
                 Item baru akan ditambahkan ke pesanan yang sudah ada.
             </div>
             @endif
 
             <div class="table-responsive">
-                <table class="table">
+                <table class="table checkout-table">
                     <thead>
                         <tr>
                             <th>Item</th>
@@ -47,7 +168,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="3" class="text-end fw-bold">{{ $activeOrder ? 'Total Item Baru' : 'Grand Total' }}</td>
-                            <td class="fw-bold text-primary">Rp {{ number_format($total, 0, ',', '.') }}</td>
+                            <td class="total-amount">Rp {{ number_format($total, 0, ',', '.') }}</td>
                         </tr>
                         @if($activeOrder)
                         <tr>
@@ -56,7 +177,7 @@
                         </tr>
                         <tr>
                             <td colspan="3" class="text-end fw-bold">GRAND TOTAL</td>
-                            <td class="fw-bold text-success">Rp {{ number_format($total + $activeOrder->total_amount, 0, ',', '.') }}</td>
+                            <td class="total-amount">Rp {{ number_format($total + $activeOrder->total_amount, 0, ',', '.') }}</td>
                         </tr>
                         @endif
                     </tfoot>
@@ -89,17 +210,21 @@
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        {{ $activeOrder ? 'Tambahkan ke Pesanan' : 'Pesan Sekarang' }}
+                    <button type="submit" class="btn btn-primary btn-lg btn-submit">
+                        <i class="fas fa-check-circle"></i> {{ $activeOrder ? 'Tambahkan ke Pesanan' : 'Pesan Sekarang' }}
                     </button>
-                    <a href="{{ route('order.index', request()->route('uuid')) }}" class="btn btn-outline-secondary">Tambah Item Lagi</a>
+                    <a href="{{ route('order.index', request()->route('uuid')) }}" class="btn btn-outline-secondary" style="border-radius: 10px;">
+                        <i class="fas fa-arrow-left"></i> Tambah Item Lagi
+                    </a>
                 </div>
             </form>
         @else
             <div class="text-center py-5">
-                <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+                <i class="fas fa-shopping-cart fa-3x mb-3 text-muted empty-cart-icon"></i>
                 <p>Keranjang Anda kosong.</p>
-                <a href="{{ route('order.index', request()->route('uuid')) }}" class="btn btn-primary">Browse Menu</a>
+                <a href="{{ route('order.index', request()->route('uuid')) }}" class="btn btn-primary">
+                    <i class="fas fa-utensils"></i> Browse Menu
+                </a>
             </div>
         @endif
     </div>
