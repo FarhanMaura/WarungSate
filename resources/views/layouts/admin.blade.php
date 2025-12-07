@@ -47,7 +47,7 @@
     <!-- Brand Logo -->
     <a href="{{ route('admin.dashboard') }}" class="brand-link">
       <i class="fas fa-fire" style="color: var(--admin-primary); margin-left: 10px;"></i>
-      <span class="brand-text">Sate Admin</span>
+      <span class="brand-text">Administrator</span>
     </a>
 
     <!-- Sidebar -->

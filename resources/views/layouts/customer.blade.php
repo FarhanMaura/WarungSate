@@ -410,7 +410,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#" style="font-weight: 700; font-size: 1.3rem;">
                 <i class="fas fa-fire" style="color: var(--sate-orange);"></i> 
-                <span style="background: linear-gradient(135deg, var(--sate-brown), var(--sate-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Sate Enak</span>
+                <span style="background: linear-gradient(135deg, var(--sate-brown), var(--sate-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Warung Sate Madura Bukit Baru</span>
             </a>
             @if(session('cart'))
             <a href="{{ route('order.checkout', request()->route('uuid')) }}" class="btn btn-sm position-relative cart-btn">

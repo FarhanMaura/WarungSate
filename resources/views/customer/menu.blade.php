@@ -381,7 +381,7 @@
         
         @if($activeOrder->payment_method == 'Transfer' && $activeOrder->payment_status == 'pending')
         <div class="alert alert-info mb-0">
-            <small><i class="fas fa-info-circle"></i> Silakan transfer ke Bank BCA: 1234567890 (Sate Enak) atau scan QRIS di kasir.</small>
+            <small><i class="fas fa-info-circle"></i> Silakan transfer ke Bank BCA: 1234567890 (Warung Sate Madura Bukit Baru) atau scan QRIS di kasir.</small>
         </div>
         @endif
         
