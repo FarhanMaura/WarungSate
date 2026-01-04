@@ -24,29 +24,37 @@ class TableController extends Controller
     {
         $request->validate([
             'table_number' => 'required|unique:tables,table_number',
+            'location_lat' => 'required|numeric|between:-90,90',
+            'location_lng' => 'required|numeric|between:-180,180',
         ]);
 
         $uuid = \Illuminate\Support\Str::uuid();
         
-        // Generate QR Code
-        // We will generate a URL: domain.com/order/{uuid}
+        // Generate QR Code URL
         $url = route('order.index', $uuid);
         
-        // Save QR Code image
+        // Save QR Code as SVG (reliable, no extension needed)
         $qrName = 'qr-' . $request->table_number . '.svg';
-        $path = public_path('qrcodes/' . $qrName);
+        $qrPath = public_path('qrcodes/' . $qrName);
         
         // Ensure directory exists
         if (!file_exists(public_path('qrcodes'))) {
             mkdir(public_path('qrcodes'), 0777, true);
         }
 
-        \SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate($url, $path);
+        // Generate SVG QR Code
+        \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
+            ->size(300)
+            ->errorCorrection('H')
+            ->generate($url, $qrPath);
 
         \App\Models\Table::create([
             'table_number' => $request->table_number,
             'uuid' => $uuid,
             'qr_code_path' => 'qrcodes/' . $qrName,
+            'location_lat' => $request->location_lat,
+            'location_lng' => $request->location_lng,
+            'location_radius' => 10, // Default 10 meter
         ]);
 
         return redirect()->route('tables.index')

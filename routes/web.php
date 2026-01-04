@@ -38,6 +38,11 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+// Out of Range Route
+Route::get('/out-of-range', function () {
+    return view('customer.out_of_range');
+})->name('out.of.range');
+
 // Customer Routes
 Route::get('/order/{uuid}', [App\Http\Controllers\CustomerController::class, 'index'])->name('order.index');
 Route::post('/order/{uuid}/cart', [App\Http\Controllers\CustomerController::class, 'addToCart'])->name('order.addToCart');

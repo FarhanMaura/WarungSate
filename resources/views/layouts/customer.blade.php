@@ -476,13 +476,19 @@
             }
         });
 
-        // Store Coordinates
-        const STORE_LAT = -6.175392; 
-        const STORE_LNG = 106.827153;
-        const MAX_RADIUS_METERS = 3000000;
+        // Geolocation Configuration
+        @isset($table)
+        const TABLE_LAT = {{ $table->location_lat ?? 'null' }};
+        const TABLE_LNG = {{ $table->location_lng ?? 'null' }};
+        const MAX_RADIUS_METERS = {{ $table->location_radius ?? 10 }};
+        @else
+        const TABLE_LAT = null;
+        const TABLE_LNG = null;
+        const MAX_RADIUS_METERS = 10;
+        @endisset
 
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-            var R = 6371;
+            var R = 6371; // Radius of the earth in km
             var dLat = deg2rad(lat2-lat1);
             var dLon = deg2rad(lon2-lon1); 
             var a = 
@@ -492,7 +498,7 @@
                 ; 
             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
             var d = R * c;
-            return d * 1000;
+            return d * 1000; // Distance in meters
         }
 
         function deg2rad(deg) {
@@ -500,44 +506,71 @@
         }
 
         function checkLocation() {
+            // Check if coordinates are set
+            if (TABLE_LAT === null || TABLE_LNG === null) {
+                console.log('Table coordinates not set. Skipping geolocation check.');
+                return;
+            }
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
                 alert("Geolocation is not supported by this browser.");
+                window.location.href = "{{ route('out.of.range') }}";
             }
         }
 
         function showPosition(position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            const dist = getDistanceFromLatLonInKm(lat, lng, STORE_LAT, STORE_LNG);
+            const dist = getDistanceFromLatLonInKm(lat, lng, TABLE_LAT, TABLE_LNG);
             
+            console.log("User location: " + lat + ", " + lng);
+            console.log("Table location: " + TABLE_LAT + ", " + TABLE_LNG);
             console.log("Distance: " + dist + " meters");
+            console.log("Max radius: " + MAX_RADIUS_METERS + " meters");
 
             if (dist > MAX_RADIUS_METERS) {
-                document.getElementById('radius-overlay').style.display = 'flex';
+                console.log("User is outside the allowed radius. Redirecting...");
+                window.location.href = "{{ route('out.of.range') }}";
             } else {
-                document.getElementById('radius-overlay').style.display = 'none';
+                console.log("User is within the allowed radius.");
             }
         }
 
         function showError(error) {
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    alert("User denied the request for Geolocation. You must allow location access to order.");
-                    document.getElementById('radius-overlay').style.display = 'flex';
+                    alert("Anda harus mengizinkan akses lokasi untuk melakukan pemesanan.");
+                    window.location.href = "{{ route('out.of.range') }}";
                     break;
                 case error.POSITION_UNAVAILABLE:
-                    alert("Location information is unavailable.");
+                    alert("Informasi lokasi tidak tersedia.");
+                    window.location.href = "{{ route('out.of.range') }}";
                     break;
                 case error.TIMEOUT:
-                    alert("The request to get user location timed out.");
+                    alert("Waktu permintaan lokasi habis.");
+                    window.location.href = "{{ route('out.of.range') }}";
                     break;
                 case error.UNKNOWN_ERROR:
-                    alert("An unknown error occurred.");
+                    alert("Terjadi kesalahan yang tidak diketahui.");
+                    window.location.href = "{{ route('out.of.range') }}";
                     break;
             }
         }
+
+        // Auto-check location on page load (with admin bypass)
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if accessed from admin panel (bypass validation for testing)
+            const isFromAdmin = document.referrer.includes('/admin/tables');
+            
+            if (isFromAdmin) {
+                console.log('Access from admin panel detected. Bypassing geolocation check.');
+            } else {
+                console.log('Regular access detected. Checking geolocation...');
+                checkLocation();
+            }
+        });
     </script>
     @stack('js')
 </body>
