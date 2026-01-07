@@ -484,7 +484,8 @@
         @else
         const TABLE_LAT = null;
         const TABLE_LNG = null;
-        const MAX_RADIUS_METERS = 10;
+        const MAX_RADIUS_METERS = 100;
+        const REQUIRE_LOCATION = {{ $table->require_location ?? 'true' }};
         @endisset
 
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -523,18 +524,60 @@
         function showPosition(position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy; // GPS accuracy in meters
             const dist = getDistanceFromLatLonInKm(lat, lng, TABLE_LAT, TABLE_LNG);
             
+            console.log("=== GEOLOCATION DEBUG ===");
             console.log("User location: " + lat + ", " + lng);
+            console.log("GPS Accuracy: ±" + accuracy.toFixed(2) + " meters");
             console.log("Table location: " + TABLE_LAT + ", " + TABLE_LNG);
-            console.log("Distance: " + dist + " meters");
-            console.log("Max radius: " + MAX_RADIUS_METERS + " meters");
+            console.log("Distance: " + dist.toFixed(2) + " meters");
 
-            if (dist > MAX_RADIUS_METERS) {
+            // Adaptive Radius based on GPS Accuracy
+            let effectiveRadius = MAX_RADIUS_METERS;
+            const MAX_ACCEPTABLE_ACCURACY = 300; // Maximum acceptable GPS accuracy
+            
+            if (accuracy <= 100) {
+                // Good GPS - use strict radius
+                effectiveRadius = 100;
+                console.log("GPS accuracy is good. Using strict radius: 100m");
+            } else if (accuracy <= 300) {
+                // Moderate GPS - use relaxed radius
+                effectiveRadius = 300;
+                console.log("GPS accuracy is moderate. Using relaxed radius: 300m");
+            } else {
+                // Very poor GPS - reject
+                console.log("GPS accuracy too poor (±" + accuracy.toFixed(2) + "m > 300m). Rejecting...");
+                sessionStorage.setItem('distance', dist.toFixed(2));
+                sessionStorage.setItem('maxRadius', MAX_RADIUS_METERS);
+                sessionStorage.setItem('userLat', lat);
+                sessionStorage.setItem('userLng', lng);
+                sessionStorage.setItem('tableLat', TABLE_LAT);
+                sessionStorage.setItem('tableLng', TABLE_LNG);
+                sessionStorage.setItem('gpsAccuracy', accuracy.toFixed(2));
+                sessionStorage.setItem('accuracyError', 'true');
+                window.location.href = "{{ route('out.of.range') }}";
+                return;
+            }
+
+            console.log("Effective radius: " + effectiveRadius + " meters");
+            console.log("Within range? " + (dist <= effectiveRadius ? "YES ✓" : "NO ✗"));
+            console.log("========================");
+
+            // Distance Check with adaptive radius
+            if (dist > effectiveRadius) {
                 console.log("User is outside the allowed radius. Redirecting...");
+                sessionStorage.setItem('distance', dist.toFixed(2));
+                sessionStorage.setItem('maxRadius', effectiveRadius);
+                sessionStorage.setItem('userLat', lat);
+                sessionStorage.setItem('userLng', lng);
+                sessionStorage.setItem('tableLat', TABLE_LAT);
+                sessionStorage.setItem('tableLng', TABLE_LNG);
+                sessionStorage.setItem('gpsAccuracy', accuracy.toFixed(2));
+                sessionStorage.setItem('accuracyError', 'false');
                 window.location.href = "{{ route('out.of.range') }}";
             } else {
-                console.log("User is within the allowed radius.");
+                console.log("User is within the allowed radius. Access granted!");
             }
         }
 
@@ -566,6 +609,8 @@
             
             if (isFromAdmin) {
                 console.log('Access from admin panel detected. Bypassing geolocation check.');
+            } else if (!REQUIRE_LOCATION) {
+                console.log('Location validation disabled for this table. Access granted without geolocation check.');
             } else {
                 console.log('Regular access detected. Checking geolocation...');
                 checkLocation();

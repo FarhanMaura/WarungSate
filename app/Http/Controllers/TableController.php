@@ -54,7 +54,7 @@ class TableController extends Controller
             'qr_code_path' => 'qrcodes/' . $qrName,
             'location_lat' => $request->location_lat,
             'location_lng' => $request->location_lng,
-            'location_radius' => 10, // Default 10 meter
+            'location_radius' => 100, // Default 100 meter - Prevents neighbor fake orders while tolerating GPS inaccuracy
         ]);
 
         return redirect()->route('tables.index')
@@ -87,5 +87,17 @@ class TableController extends Controller
 
         return redirect()->route('tables.index')
                         ->with('success', 'Meja berhasil dikosongkan');
+    }
+
+    public function toggleLocation(\App\Models\Table $table)
+    {
+        // Toggle require_location boolean
+        $table->require_location = !$table->require_location;
+        $table->save();
+
+        $status = $table->require_location ? 'diaktifkan' : 'dinonaktifkan';
+        
+        return redirect()->route('tables.index')
+                        ->with('success', "Validasi lokasi untuk meja {$table->table_number} berhasil {$status}");
     }
 }

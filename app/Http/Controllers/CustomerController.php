@@ -149,6 +149,14 @@ class CustomerController extends Controller
             $table->status = 'occupied';
             $table->save();
 
+            // Auto re-enable location validation if it was disabled
+            // This prevents staff from forgetting to re-enable during busy times
+            if (!$table->require_location) {
+                $table->require_location = true;
+                $table->save();
+                \Log::info("Location validation auto re-enabled for table: {$table->table_number} after order placement");
+            }
+
             session()->forget('cart');
 
             return redirect()->route('order.status', ['uuid' => $uuid, 'order' => $order->id]);

@@ -24,6 +24,7 @@
                     <th>QR Code</th>
                     <th>URL Testing</th>
                     <th>Status</th>
+                    <th>Validasi Lokasi</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -54,6 +55,20 @@
                         @else
                             <span class="badge badge-success">Tersedia</span>
                         @endif
+                    </td>
+                    <td>
+                        @if($table->require_location)
+                            <span class="badge badge-success"><i class="fas fa-check"></i> Aktif</span>
+                        @else
+                            <span class="badge badge-danger"><i class="fas fa-times"></i> Nonaktif</span>
+                        @endif
+                        <br>
+                        <form action="{{ route('tables.toggle-location', $table->id) }}" method="POST" style="display:inline; margin-top: 5px;">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-warning mt-1">
+                                <i class="fas fa-map-marker-alt"></i> Toggle
+                            </button>
+                        </form>
                     </td>
                     <td>
                         @if($table->status == 'occupied')

@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('menus', App\Http\Controllers\MenuController::class);
         Route::resource('tables', App\Http\Controllers\TableController::class);
         Route::post('tables/{table}/clear', [App\Http\Controllers\TableController::class, 'clearTable'])->name('tables.clear');
+        Route::post('tables/{table}/toggle-location', [App\Http\Controllers\TableController::class, 'toggleLocation'])->name('tables.toggle-location');
         
         Route::resource('payment-methods', App\Http\Controllers\PaymentMethodController::class);
         

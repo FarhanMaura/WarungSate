@@ -126,7 +126,7 @@
         <i class="fas fa-map-marker-alt icon"></i>
         <h1>Di Luar Jangkauan</h1>
         <p>
-            Anda harus berada dalam radius <strong>10 meter</strong> dari lokasi Warung Sate Madura Bukit Baru untuk dapat melakukan pemesanan.
+            Anda harus berada dalam radius <strong>100 meter</strong> dari lokasi Warung Sate Madura Bukit Baru untuk dapat melakukan pemesanan.
         </p>
         <p>
             Silakan datang ke lokasi warung dan scan QR Code yang tersedia di meja.
@@ -144,6 +144,64 @@
                 <li>Anda harus berada di dalam atau dekat warung</li>
             </ul>
         </div>
+        
+        <div id="debugInfo" class="info-box" style="background: #e3f2fd; border-left-color: #2196F3; margin-top: 20px; display: none;">
+            <strong><i class="fas fa-bug"></i> Debug Information:</strong>
+            <ul style="list-style: none; margin-left: 0;">
+                <li><strong>Jarak Anda:</strong> <span id="distanceInfo">-</span> meter</li>
+                <li><strong>Radius Maksimal:</strong> <span id="radiusInfo">-</span> meter</li>
+                <li><strong>Lokasi Anda:</strong> <span id="userLocation">-</span></li>
+                <li><strong>Lokasi Meja:</strong> <span id="tableLocation">-</span></li>
+            </ul>
+            <small style="color: #666; display: block; margin-top: 10px;">
+                <i class="fas fa-lightbulb"></i> Tip: Aktifkan GPS dengan akurasi tinggi untuk hasil terbaik
+            </small>
+        </div>
     </div>
+    
+    <script>
+        // Display debug info from sessionStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const distance = sessionStorage.getItem('distance');
+            const maxRadius = sessionStorage.getItem('maxRadius');
+            const userLat = sessionStorage.getItem('userLat');
+            const userLng = sessionStorage.getItem('userLng');
+            const tableLat = sessionStorage.getItem('tableLat');
+            const tableLng = sessionStorage.getItem('tableLng');
+            const gpsAccuracy = sessionStorage.getItem('gpsAccuracy');
+            const accuracyError = sessionStorage.getItem('accuracyError');
+            
+            // Update main message based on error type
+            const mainMessage = document.querySelector('p');
+            if (accuracyError === 'true') {
+                mainMessage.innerHTML = `
+                    <strong style="color: #FF8C42;">GPS Anda tidak akurat!</strong><br>
+                    Akurasi GPS: <strong>±${gpsAccuracy} meter</strong> (terlalu buruk)<br><br>
+                    Silakan:
+                    <ul style="text-align: left; display: inline-block; margin-top: 10px;">
+                        <li>Pindah ke area outdoor/terbuka</li>
+                        <li>Pastikan GPS di HP aktif (bukan hanya WiFi)</li>
+                        <li>Tunggu beberapa detik agar GPS lebih akurat</li>
+                        <li>Coba lagi dengan tombol di bawah</li>
+                    </ul>
+                `;
+            }
+            
+            if (distance && maxRadius) {
+                document.getElementById('debugInfo').style.display = 'block';
+                document.getElementById('distanceInfo').textContent = distance;
+                document.getElementById('radiusInfo').textContent = maxRadius;
+                document.getElementById('userLocation').textContent = userLat + ', ' + userLng;
+                document.getElementById('tableLocation').textContent = tableLat + ', ' + tableLng;
+                
+                // Add GPS accuracy to debug info
+                if (gpsAccuracy) {
+                    const accuracyItem = document.createElement('li');
+                    accuracyItem.innerHTML = '<strong>Akurasi GPS:</strong> ±' + gpsAccuracy + ' meter';
+                    document.querySelector('#debugInfo ul').appendChild(accuracyItem);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
