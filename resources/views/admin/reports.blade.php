@@ -48,30 +48,32 @@
         </div>
 
         <h5>Pesanan Terbayar</h5>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Meja</th>
-                    <th>Pelanggan</th>
-                    <th>Total</th>
-                    <th>Metode Pembayaran</th>
-                    <th>Tanggal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($paidOrders as $order)
-                <tr>
-                    <td>{{ $order->id }}</td>
-                    <td>{{ $order->table->table_number }}</td>
-                    <td>{{ $order->customer_name ?? 'Tamu' }}</td>
-                    <td>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
-                    <td>{{ $order->payment_method }}</td>
-                    <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Meja</th>
+                        <th>Pelanggan</th>
+                        <th>Total</th>
+                        <th>Metode Pembayaran</th>
+                        <th>Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($paidOrders as $order)
+                    <tr>
+                        <td>{{ $order->id }}</td>
+                        <td>{{ $order->table->table_number }}</td>
+                        <td>{{ $order->customer_name ?? 'Tamu' }}</td>
+                        <td>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
+                        <td>{{ $order->payment_method }}</td>
+                        <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection

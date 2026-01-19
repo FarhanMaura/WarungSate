@@ -408,8 +408,8 @@
 
     <nav class="navbar navbar-expand-lg fixed-top no-print">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#" style="font-weight: 700; font-size: 1.3rem;">
-                <i class="fas fa-fire" style="color: var(--sate-orange);"></i> 
+            <a class="navbar-brand" href="#" style="font-weight: 700; font-size: 1.3rem; display: flex; align-items: center;">
+                <img src="{{ asset('images/logosate.png') }}" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; margin-right: 12px;">
                 <span style="background: linear-gradient(135deg, var(--sate-brown), var(--sate-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Warung Sate Madura Bukit Baru</span>
             </a>
             @if(session('cart'))

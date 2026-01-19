@@ -372,6 +372,33 @@
             padding-bottom: 10px;
         }
     }
+
+    /* Mobile responsive */
+    @media (max-width: 576px) {
+        .status-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .timeline-item {
+            max-width: 100%;
+        }
+
+        .receipt-card .row .col-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .d-grid.gap-2 {
+            gap: 0.5rem !important;
+        }
+
+        .btn-refresh,
+        .btn-outline-secondary {
+            padding: 12px;
+            font-size: 0.95rem;
+        }
+    }
 </style>
 @endpush
 
@@ -480,32 +507,34 @@
                 <hr>
 
                 <h6>Detail Pesanan:</h6>
-                <table class="table table-sm table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Qty</th>
-                            <th>Harga</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($order->items as $item)
-                        <tr>
-                            <td>{{ $item->menu->name }}</td>
-                            <td>{{ $item->quantity }}</td>
-                            <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="3" class="text-end">TOTAL:</th>
-                            <th class="total-amount">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</th>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Harga</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($order->items as $item)
+                            <tr>
+                                <td>{{ $item->menu->name }}</td>
+                                <td>{{ $item->quantity }}</td>
+                                <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">TOTAL:</th>
+                                <th class="total-amount">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
 
                 <hr>
 

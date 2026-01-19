@@ -148,41 +148,43 @@
                 </div>
             </div>
             <div class="card-body p-0">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Meja</th>
-                            <th>Pelanggan</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Waktu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($recentOrders ?? [] as $order)
-                        <tr>
-                            <td><strong>#{{ $order->id }}</strong></td>
-                            <td><i class="fas fa-table"></i> Meja {{ $order->table->table_number }}</td>
-                            <td>{{ $order->customer_name }}</td>
-                            <td><strong>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong></td>
-                            <td>
-                                @php
-                                    $statusClass = 'status-badge-' . $order->order_status;
-                                @endphp
-                                <span class="badge {{ $statusClass }}">
-                                    {{ ucfirst($order->order_status) }}
-                                </span>
-                            </td>
-                            <td>{{ $order->created_at->diffForHumans() }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="text-center">Belum ada pesanan</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Meja</th>
+                                <th>Pelanggan</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentOrders ?? [] as $order)
+                            <tr>
+                                <td><strong>#{{ $order->id }}</strong></td>
+                                <td><i class="fas fa-table"></i> Meja {{ $order->table->table_number }}</td>
+                                <td>{{ $order->customer_name }}</td>
+                                <td><strong>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong></td>
+                                <td>
+                                    @php
+                                        $statusClass = 'status-badge-' . $order->order_status;
+                                    @endphp
+                                    <span class="badge {{ $statusClass }}">
+                                        {{ ucfirst($order->order_status) }}
+                                    </span>
+                                </td>
+                                <td>{{ $order->created_at->diffForHumans() }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center">Belum ada pesanan</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

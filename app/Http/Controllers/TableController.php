@@ -33,25 +33,17 @@ class TableController extends Controller
         // Generate QR Code URL
         $url = route('order.index', $uuid);
         
-        // Save QR Code as SVG (reliable, no extension needed)
-        $qrName = 'qr-' . $request->table_number . '.svg';
-        $qrPath = public_path('qrcodes/' . $qrName);
+        // Use QRServer API for QR Code (Google Charts API is deprecated!)
+        // This is a free, reliable API that's still actively maintained
+        $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' . urlencode($url);
         
-        // Ensure directory exists
-        if (!file_exists(public_path('qrcodes'))) {
-            mkdir(public_path('qrcodes'), 0777, true);
-        }
-
-        // Generate SVG QR Code
-        \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
-            ->size(300)
-            ->errorCorrection('H')
-            ->generate($url, $qrPath);
+        // Store the API URL instead of file path
+        $qrCodePath = $qrCodeUrl;
 
         \App\Models\Table::create([
             'table_number' => $request->table_number,
             'uuid' => $uuid,
-            'qr_code_path' => 'qrcodes/' . $qrName,
+            'qr_code_path' => $qrCodePath,
             'location_lat' => $request->location_lat,
             'location_lng' => $request->location_lng,
             'location_radius' => 100, // Default 100 meter - Prevents neighbor fake orders while tolerating GPS inaccuracy
@@ -63,11 +55,7 @@ class TableController extends Controller
 
     public function destroy(\App\Models\Table $table)
     {
-        // Delete QR file
-        if (file_exists(public_path($table->qr_code_path))) {
-            unlink(public_path($table->qr_code_path));
-        }
-        
+        // No need to delete QR file since we're using API URL
         $table->delete();
 
         return redirect()->route('tables.index')

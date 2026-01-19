@@ -45,9 +45,9 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="{{ route('admin.dashboard') }}" class="brand-link">
-      <i class="fas fa-fire" style="color: var(--admin-primary); margin-left: 10px;"></i>
-      <span class="brand-text">Administrator</span>
+    <a href="{{ route('admin.dashboard') }}" class="brand-link" style="display: flex; align-items: center; padding: 10px 15px;">
+      <img src="{{ asset('images/logosate.png') }}" alt="Logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px;">
+      <span class="brand-text" style="font-size: 1.1rem;">Administrator</span>
     </a>
 
     <!-- Sidebar -->

@@ -298,11 +298,34 @@
     }
 
     /* Mobile responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 576px) {
+        /* 1 column on very small screens */
         .menu-card {
             margin-bottom: 20px;
         }
 
+        .col-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+
+        #active-order .btn-sm {
+            padding: 8px 12px;
+        }
+
+        #active-order .row .col-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+
+    @media (min-width: 577px) and (max-width: 768px) {
+        /* 2 columns on medium screens */
         .page-header h1 {
             font-size: 1.8rem;
         }
